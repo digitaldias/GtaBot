@@ -7,28 +7,31 @@ namespace GtaBot.Cognitive
 {
     public class GtaVisionApi
     {
-        private static string API_URI        = "https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/c02aa2f4-6a6e-4cea-aa2d-ce9e8a6fbd23/image";
-        private static string PREDICTION_KEY = "4a51400ea9504c2b94011244da79bd1b";
         private static HttpClient _httpClient;
+        private readonly string _apiUrl;
+        private readonly string _predictionKey;
 
 
-        public GtaVisionApi()
+        public GtaVisionApi(string apiUrl, string predictionKey)
         {
-            
-            if(_httpClient == null)
+            _apiUrl = apiUrl;
+            _predictionKey = predictionKey;
+
+            if (_httpClient == null)
             {
                 _httpClient = new HttpClient();
-                _httpClient.DefaultRequestHeaders.Add("Prediction-Key", PREDICTION_KEY);
+                _httpClient.DefaultRequestHeaders.Add("Prediction-Key", _predictionKey);
 
             }
         }
+
 
         public async Task<VisionResponse> GetPrediction(byte[] imageData)
         {
             var content                 = new ByteArrayContent(imageData);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
-            var response = await _httpClient.PostAsync(API_URI, content);
+            var response = await _httpClient.PostAsync(_apiUrl, content);
             if(response.IsSuccessStatusCode)
             {
                 var text = await response.Content.ReadAsStringAsync();

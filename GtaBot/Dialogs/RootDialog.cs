@@ -1,4 +1,5 @@
 ﻿using GtaBot.Cognitive;
+using Microsoft.Azure;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System;
@@ -12,8 +13,6 @@ namespace GtaBot.Dialogs
     [Serializable]
     public class RootDialog : IDialog<object>
     {
-        private string badBatteriesUrl;
-
         public Task StartAsync(IDialogContext context)
         {
             context.Wait(MessageReceivedAsync);
@@ -32,17 +31,19 @@ namespace GtaBot.Dialogs
 
             if(activity.Attachments.Any() && activity.Attachments[0].ContentType == "image/jpeg")
             {
-                var visionApi    = new GtaVisionApi();
-                var contentData = await GetImageDataAsync(activity);
-                var visionResult = await visionApi.GetPrediction(contentData);
+                var visionApiUrl  = CloudConfigurationManager.GetSetting("VisionApiUrl");
+                var predictionKey = CloudConfigurationManager.GetSetting("VisionPredictionKey");
+                var visionApi     = new GtaVisionApi(visionApiUrl, predictionKey); 
 
-                var scores = visionResult.Predictions.Where(p => p.Probability > 0.8);
+                var contentData   = await GetImageDataAsync(activity);
+                var visionResult  = await visionApi.GetPrediction(contentData);
+                var scores        = visionResult.Predictions.Where(p => p.Probability > 0.8);
 
                 await ReactToScores(context, activity, scores);                
             }
             else
             {
-                await context.PostAsync("I've no idea how to deal with that!");
+                await context.PostAsync("I've no idea how to deal with that! Try sending me an image?");
             }
 
             context.Wait(MessageReceivedAsync);

@@ -41,7 +41,7 @@ namespace GtaBot
                 foreach(var addedMember in message.MembersAdded)
                     if(addedMember.Id != message.Recipient.Id)
                     {
-                        var reply = message.CreateReply($"Welcome to GTA, {addedMember.Name}!");
+                        var reply = message.CreateReply($"Welcome to GTA, {addedMember.Name}! Try sending me a JPEG.. I LOVE processing JPEG images, ESPECIALLY if they have batteries in them!!!");
                         var client = new ConnectorClient(new Uri(message.ServiceUrl), new MicrosoftAppCredentials());
                         await client.Conversations.ReplyToActivityAsync(reply);
                     }
