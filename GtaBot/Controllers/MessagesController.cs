@@ -1,9 +1,10 @@
-﻿using System.Net;
+﻿using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Connector;
+using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Connector;
 
 namespace GtaBot
 {
@@ -22,13 +23,13 @@ namespace GtaBot
             }
             else
             {
-                HandleSystemMessage(activity);
+                await HandleSystemMessage(activity);
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
 
-        private Activity HandleSystemMessage(Activity message)
+        private async Task<Activity> HandleSystemMessage(Activity message)
         {
             if (message.Type == ActivityTypes.DeleteUserData)
             {
@@ -37,6 +38,15 @@ namespace GtaBot
             }
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {
+                foreach(var addedMember in message.MembersAdded)
+                    if(addedMember.Id != message.Recipient.Id)
+                    {
+                        var reply = message.CreateReply($"Welcome to GTA, {addedMember.Name}!");
+                        var client = new ConnectorClient(new Uri(message.ServiceUrl), new MicrosoftAppCredentials());
+                        await client.Conversations.ReplyToActivityAsync(reply);
+                    }
+
+
                 // Handle conversation state changes, like members being added and removed
                 // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
                 // Not available in all channels
