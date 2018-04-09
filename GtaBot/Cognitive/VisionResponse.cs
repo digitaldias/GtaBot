@@ -10,13 +10,4 @@ namespace GtaBot.Cognitive
         public DateTime Created { get; set; }
         public Prediction[] Predictions { get; set; }
     }
-
-
-    public class Prediction
-    {
-        public string TagId { get; set; }
-        public string Tag { get; set; }
-        public float Probability { get; set; }
-    }
-
 }
